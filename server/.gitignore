@@ -1,5 +1,7 @@
 .env
 server/*.json
+!server/data/*.json
+!server/data/*.csv
 *.tmp
 *.temp
 *.bak
