@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+
+@font-face {
+    font-family: 'blfont';
+    src: url(../src/assets/BLFont.otf) format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    font-family: 'blfont', sans-serif;
+}
+
+html {
+  font-size: 24px;
+}

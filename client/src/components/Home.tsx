@@ -4,6 +4,7 @@ import cardImage from '../assets/card.png';
 import type { Item } from '../types';
 import { useEffect, useState } from 'react';
 import Select from 'react-select';
+import type {ResultTristateCheck} from '../../../server/src/index'
 
 interface ItemOption {
   value: number;
@@ -12,9 +13,18 @@ interface ItemOption {
 }
 
 const Home: React.FC = () => {
-  const [options, setOptions] = useState<ItemOption[]>([]);
-  const [selected, setSelected] = useState<ItemOption | null>(null);
-  const [result, setResult] = useState<{ isCorrect: boolean; dailyId: number; dailyImage: string } | null>(null);
+  const [options, setOptions] = useState<ItemOption[]>([])
+  const [selected, setSelected] = useState<ItemOption | null>(null)
+  const [result, setResult] = useState<{
+    isCorrect: boolean,
+    isRarityCorrect: ResultTristateCheck;
+    isTypeCorrect: ResultTristateCheck;
+    isManufacturerCorrect: ResultTristateCheck; 
+    isGameCorrect: ResultTristateCheck;  
+    isElementsCorrect: ResultTristateCheck;
+    dailyId: number;
+    dailyImage: number;
+  } | null>(null)         // use this to check if items are partially correctt
 
   useEffect(() => {
     fetch('http://localhost:5000/api/items/select')
@@ -22,29 +32,35 @@ const Home: React.FC = () => {
       .then((data: Item[]) => setOptions(data.map(item => ({
         value: item.id,
         label: `${item.name}`,
+        rarity: item.rarity,
+        type: item.type,
+        manufacturer: item.manufacturer,
+        game: item.game,
+        element: item.elements,
+        redText: item.redText,
         item
       }))))
       .catch(err => console.error('Error fetching items:', err));
   }, []);
 
   const checkItem = async (option: ItemOption | null) => {
-    if (!option) return;
+    if (!option) return
     try {
       const res = await fetch('http://localhost:5000/api/check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ selectedId: option.value })
-      });
-      const data = await res.json();
-      setResult(data);
+        body: JSON.stringify({selectedItem: option.item})
+      })
+      const data = await res.json()
+      setResult(data)
     } catch (err) {
-      console.error('Error checking item:', err);
+      console.error('Error checking item:', err)
     }
   };
 
   const handleSelect = (option: ItemOption | null) => {
-    setSelected(option);
-    checkItem(option);
+    setSelected(option)
+    checkItem(option)
   };
 
   const formatOptionLabel = ({ label, item }: ItemOption) => (
@@ -56,15 +72,15 @@ const Home: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-start pt-8 bg-cover bg-center"
+      className="min-h-screen bg-fixed flex flex-col items-center justify-start pt-8 bg-cover bg-center h-[200vh]"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <img src={logoImage} alt="Logo" className="w-[512px] h-[128px] object-contain" />
       <div
-        className="mt-16 p-8 w-[424px] h-[296px] flex flex-col items-center justify-start text-white text-2xl font-bold bg-contain bg-no-repeat bg-center"
+        className="mt-16 p-8 w-[524px] h-[396px] flex flex-col items-center justify-start text-white text-2xl font-bold bg-contain bg-no-repeat bg-center"
         style={{ backgroundImage: `url(${cardImage})` }}
       >
-        <span className="mt-12 drop-shadow-lg">Guess Today's Weapon!</span>
+        <span className="mt-12 drop-shadow-lg">GUESS TODAY'S WEAPON!</span>
         <Select
           options={options}
           value={selected}
@@ -115,11 +131,12 @@ const Home: React.FC = () => {
               {result.isCorrect ? 'Correct!' : `Wrong! Daily item ID: ${result.dailyId}`}
             </p>
             {!result.isCorrect && (
-              <div className="mt-2">
+              <div className="mt-6">
                 <img src={`http://localhost:5000${result.dailyImage}`} alt="Daily Item" className="w-24 mx-auto" />
                 {selected && (
-                  <div className="mt-2 text-sm text-white">
-                    <h3 className="text-base font-bold">Your Pick:</h3>
+                  <div className="mt-2 text-xl text-white">
+                    <h3 className="text-base">Your Pick:</h3>
+                    <img src={`http://localhost:5000${selected.item.imageUrl}`}></img>
                     <p><strong>Name:</strong> {selected.item.name}</p>
                     <p><strong>Rarity:</strong> {selected.item.rarity}</p>
                     <p><strong>Type:</strong> {selected.item.type}</p>

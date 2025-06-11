@@ -61,6 +61,9 @@ interface Item {
   imageUrl: string;
 }
 
+
+export type ResultTristateCheck = {state: 'correct' | 'incorrect' | 'partial'}
+
 app.get('daily', async (req: Request, res: Response) =>{
   try {
     const seed = new Date().toISOString().split('T')[0]
@@ -101,7 +104,7 @@ app.get('/api/items/select', async (req: Request, res: Response) => {
 
 app.post('/api/check', async (req: Request, res: Response) => {
   try {
-    const { selectedId } = req.body;
+    const { selectedItem } = req.body;
     const seed = new Date().toISOString().split('T')[0];
     seedrandom(seed, { global: true });
     const randomSkip = Math.floor(Math.random() * await itemsCollection.countDocuments());
@@ -109,8 +112,47 @@ app.post('/api/check', async (req: Request, res: Response) => {
     if (!dailyItem[0]) {
       return res.status(404).json({ error: 'No daily item' });
     }
-    const isCorrect = selectedId === dailyItem[0].ID;
-    res.json({ isCorrect, dailyId: dailyItem[0].ID, dailyImage: `/images/${dailyItem[0].ID}.webp` });
+    const checks = [
+      { key: 'rarity', mongoField: 'Rarity', frontendKey: 'isRarityCorrect' },
+      { key: 'type', mongoField: 'Type', frontendKey: 'isTypeCorrect' },
+      { key: 'manufacturer', mongoField: 'Manufacturer', frontendKey: 'isManufacturerCorrect' },
+      { key: 'game', mongoField: 'Game', frontendKey: 'isGameCorrect' },
+      { key: 'elements', mongoField: 'Elements', frontendKey: 'isElementsCorrect' },
+    ]
+
+    // Compute tristate checks
+    const tristateResults = checks.reduce((acc, { key, mongoField, frontendKey }) => {
+      if (key === 'elements') {
+        // Handle elements (assuming comma-separated string or array)
+        const selectedElements = Array.isArray(selectedItem[key])
+          ? selectedItem[key]
+          : selectedItem[key]?.split(',').map((e: string) => e.trim()) || [];
+        const dailyElements = Array.isArray(dailyItem[0][mongoField])
+          ? dailyItem[0][mongoField]
+          : dailyItem[0][mongoField]?.split(',').map((e: string) => e.trim()) || [];
+
+        const hasCommon = selectedElements.some((e: string) => dailyElements.includes(e));
+        const isExact = selectedElements.length === dailyElements.length && selectedElements.every((e: string) => dailyElements.includes(e));
+
+        acc[frontendKey] = {
+          state: isExact ? 'correct' : hasCommon ? 'partial' : 'incorrect',
+        };
+      } else {
+        // Handle other properties (exact match)
+        acc[frontendKey] = {
+          state: selectedItem[key] === dailyItem[0][mongoField] ? 'correct' : 'incorrect',
+        };
+      }
+      return acc;
+    }, {} as Record<string, ResultTristateCheck>);
+    
+    const isCorrect = selectedItem.id === dailyItem[0].ID;
+    res.json({ 
+      isCorrect,
+      ...tristateResults,
+      dailyId: dailyItem[0].ID,
+      dailyImage: `/images/${dailyItem[0].ID}.webp`
+    });
   } catch (error) {
     console.error('Error checking item:', error);
     res.status(500).json({ error: 'Failed to check item' });
