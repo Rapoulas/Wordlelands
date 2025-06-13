@@ -5,6 +5,7 @@ import type { Item } from '../types';
 import { useEffect, useState } from 'react';
 import Select from 'react-select';
 import type {ResultTristateCheck} from '../../../server/src/index'
+import { Tooltip } from 'react-tooltip'
 
 interface ItemOption {
   value: number;
@@ -72,12 +73,12 @@ const Home: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen bg-fixed flex flex-col items-center justify-start pt-8 bg-cover bg-center h-[200vh]"
+      className="min-h-screen bg-fixed flex flex-col items-center justify-start p-4 bg-cover bg-center h-[200vh]"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <img src={logoImage} alt="Logo" className="w-[512px] h-[128px] object-contain" />
       <div
-        className="mt-16 p-8 w-[524px] h-[396px] flex flex-col items-center justify-start text-white text-2xl font-bold bg-contain bg-no-repeat bg-center"
+        className="m-4 p-4 w-[524px] h-[396px] flex flex-col items-center justify-start text-white text-2xl font-bold bg-contain bg-no-repeat bg-center"
         style={{ backgroundImage: `url(${cardImage})` }}
       >
         <span className="mt-12 drop-shadow-lg">GUESS TODAY'S WEAPON!</span>
@@ -125,8 +126,63 @@ const Home: React.FC = () => {
             })
           }}
         />
+      </div>
+      <div className="m-4 p-4 bg-black border-4 border-amber-400 min-h-10 min-w-200 flex flex-col">
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-6 gap-4 cursor-pointer w-full"> {/* Grid with 2 columns */}
+            <a
+              data-tooltip-id="Item"
+              data-tooltip-content="Name of the Item"
+              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+            >
+              <Tooltip id="Item" />
+              Item
+            </a>
+            <a
+              data-tooltip-id="Rarity"
+              data-tooltip-content="Name of the many possible rarities (e.x.: Common, Epic)"
+              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+            >
+              <Tooltip id="Rarity" />
+              Rarity
+            </a>
+            <a
+              data-tooltip-id="Type"
+              data-tooltip-content="Type of the item (e.x.: Assault Rifle, Pistol) "
+              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+            >
+              <Tooltip id="Type" />
+              Type
+            </a>
+            <a
+              data-tooltip-id="Manufacturer"
+              data-tooltip-content="Name of the manufacturer (e.x.: Jakobs, Hyperion)"
+              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+            >
+              <Tooltip id="Manufacturer" />
+              Manufacturer
+            </a>
+            <a
+              data-tooltip-id="Game"
+              data-tooltip-content="Which game the weapon is present in"
+              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+            >
+              <Tooltip id="Game" />
+              Game
+            </a>
+            <a
+              data-tooltip-id="Elements"
+              data-tooltip-content="Which elements the weapon can spawn in"
+              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+            >
+              <Tooltip id="Elements" />
+              Elements
+            </a>
+          </div>
+        </div>
+
         {result && (
-          <div className="mt-4 text-center">
+          <div>
             <p className={`text-lg ${result.isCorrect ? 'text-green-500' : 'text-red-500'} drop-shadow-lg`}>
               {result.isCorrect ? 'Correct!' : `Wrong! Daily item ID: ${result.dailyId}`}
             </p>
@@ -150,7 +206,7 @@ const Home: React.FC = () => {
             )}
           </div>
         )}
-      </div>
+        </div>
     </div>
   );
 };
