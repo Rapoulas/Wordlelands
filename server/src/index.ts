@@ -62,7 +62,7 @@ interface Item {
 }
 
 
-export type ResultTristateCheck = {state: 'correct' | 'incorrect' | 'partial'}
+export type ResultTristateCheck = 'Correct' | 'Incorrect' | 'Partial'
 
 app.get('daily', async (req: Request, res: Response) =>{
   try {
@@ -134,14 +134,9 @@ app.post('/api/check', async (req: Request, res: Response) => {
         const hasCommon = selectedElements.some((e: string) => dailyElements.includes(e));
         const isExact = selectedElements.length === dailyElements.length && selectedElements.every((e: string) => dailyElements.includes(e));
 
-        acc[frontendKey] = {
-          state: isExact ? 'correct' : hasCommon ? 'partial' : 'incorrect',
-        };
+        acc[frontendKey] = isExact ? 'Correct' : hasCommon ? 'Partial' : 'Incorrect'
       } else {
-        // Handle other properties (exact match)
-        acc[frontendKey] = {
-          state: selectedItem[key] === dailyItem[0][mongoField] ? 'correct' : 'incorrect',
-        };
+        acc[frontendKey] = selectedItem[key] === dailyItem[0][mongoField] ? 'Correct' : 'Incorrect'
       }
       return acc;
     }, {} as Record<string, ResultTristateCheck>);

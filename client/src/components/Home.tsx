@@ -16,16 +16,18 @@ interface ItemOption {
 const Home: React.FC = () => {
   const [options, setOptions] = useState<ItemOption[]>([])
   const [selected, setSelected] = useState<ItemOption | null>(null)
-  const [result, setResult] = useState<{
-    isCorrect: boolean,
-    isRarityCorrect: ResultTristateCheck;
-    isTypeCorrect: ResultTristateCheck;
-    isManufacturerCorrect: ResultTristateCheck; 
-    isGameCorrect: ResultTristateCheck;  
-    isElementsCorrect: ResultTristateCheck;
-    dailyId: number;
-    dailyImage: number;
-  } | null>(null)         // use this to check if items are partially correctt
+  const [guesses, setGuesses] = useState<
+    { selected: ItemOption; result: {
+      isCorrect: boolean;
+      isRarityCorrect: ResultTristateCheck;
+      isTypeCorrect: ResultTristateCheck;
+      isManufacturerCorrect: ResultTristateCheck;
+      isGameCorrect: ResultTristateCheck;
+      isElementsCorrect: ResultTristateCheck;
+      dailyId: number;
+      dailyImage: string; 
+    } }[]
+  >([]); 
 
   useEffect(() => {
     fetch('http://localhost:5000/api/items/select')
@@ -53,7 +55,8 @@ const Home: React.FC = () => {
         body: JSON.stringify({selectedItem: option.item})
       })
       const data = await res.json()
-      setResult(data)
+      setGuesses([...guesses, { selected: option, result: data }]); 
+      setSelected(null); 
     } catch (err) {
       console.error('Error checking item:', err)
     }
@@ -127,86 +130,93 @@ const Home: React.FC = () => {
           }}
         />
       </div>
-      <div className="m-4 p-4 bg-black border-4 border-amber-400 min-h-10 min-w-200 flex flex-col">
+      <div className="m-4 p-4 bg-white border-4 border-amber-400 min-h-10 min-w-170 max-w-170 flex flex-col">
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-6 gap-4 cursor-pointer w-full"> {/* Grid with 2 columns */}
+          <div className="grid grid-cols-6 gap-1 cursor-pointer w-full">
             <a
               data-tooltip-id="Item"
               data-tooltip-content="Name of the Item"
-              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
             >
               <Tooltip id="Item" />
-              Item
+              —Item—
             </a>
             <a
               data-tooltip-id="Rarity"
               data-tooltip-content="Name of the many possible rarities (e.x.: Common, Epic)"
-              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
             >
               <Tooltip id="Rarity" />
-              Rarity
+              —Rarity—
             </a>
             <a
               data-tooltip-id="Type"
-              data-tooltip-content="Type of the item (e.x.: Assault Rifle, Pistol) "
-              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+              data-tooltip-content="Type of the item (e.x.: Assault Rifle, Pistol)"
+              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
             >
               <Tooltip id="Type" />
-              Type
+              —Type—
             </a>
             <a
               data-tooltip-id="Manufacturer"
               data-tooltip-content="Name of the manufacturer (e.x.: Jakobs, Hyperion)"
-              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
             >
               <Tooltip id="Manufacturer" />
-              Manufacturer
+              —Manufacturer—
             </a>
             <a
               data-tooltip-id="Game"
               data-tooltip-content="Which game the weapon is present in"
-              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
             >
               <Tooltip id="Game" />
-              Game
+              —Game—
             </a>
             <a
               data-tooltip-id="Elements"
               data-tooltip-content="Which elements the weapon can spawn in"
-              className="text-center text-white px-4 py-2 border-b-4 border-black m-0.5 mb-4"
+              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
             >
               <Tooltip id="Elements" />
-              Elements
+              —Elements—
             </a>
           </div>
         </div>
-
-        {result && (
-          <div>
-            <p className={`text-lg ${result.isCorrect ? 'text-green-500' : 'text-red-500'} drop-shadow-lg`}>
-              {result.isCorrect ? 'Correct!' : `Wrong! Daily item ID: ${result.dailyId}`}
-            </p>
-            {!result.isCorrect && (
-              <div className="mt-6">
-                <img src={`http://localhost:5000${result.dailyImage}`} alt="Daily Item" className="w-24 mx-auto" />
-                {selected && (
-                  <div className="mt-2 text-xl text-white">
-                    <h3 className="text-base">Your Pick:</h3>
-                    <img src={`http://localhost:5000${selected.item.imageUrl}`}></img>
-                    <p><strong>Name:</strong> {selected.item.name}</p>
-                    <p><strong>Rarity:</strong> {selected.item.rarity}</p>
-                    <p><strong>Type:</strong> {selected.item.type}</p>
-                    <p><strong>Manufacturer:</strong> {selected.item.manufacturer}</p>
-                    <p><strong>Game:</strong> {selected.item.game}</p>
-                    <p><strong>Elements:</strong> {selected.item.elements}</p>
-                    <p><strong>Red Text:</strong> {selected.item.redText}</p>
-                  </div>
-                )}
+        <div>
+          {guesses.map(({ selected, result }, idx) => (
+            <div key={idx} className="grid grid-cols-6 gap-2 w-full mb-2 text-center items-center text-black">
+              <div className="flex flex-col items-center px-2 py-2">
+                <img
+                  src={`http://localhost:5000${selected.item.imageUrl}`}
+                  alt={selected.item.name}
+                  className="w-8 h-8 object-contain mb-1"
+                />
+                <span className="text-sm">{selected.item.name}</span>
               </div>
-            )}
-          </div>
-        )}
+              <span className={`px-2 py-2 text-sm ${result.isRarityCorrect == 'Correct' ? 'bg-green-500' : result.isRarityCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.rarity}</span>
+              <span className={`px-2 py-2 text-sm ${result.isTypeCorrect == 'Correct' ? 'bg-green-500' : result.isTypeCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.type}</span>
+              <span className={`px-2 py-2 text-sm ${result.isManufacturerCorrect == 'Correct' ? 'bg-green-500' : result.isManufacturerCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.manufacturer}</span>
+              <span className={`px-2 py-2 text-sm ${result.isGameCorrect == 'Correct' ? 'bg-green-500' : result.isGameCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.game}</span>
+              <span className={`px-2 py-2 text-sm ${result.isElementsCorrect == 'Correct' ? 'bg-green-500' : result.isElementsCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.elements}</span>
+            </div>
+          ))}
+          {guesses.length > 0 && (
+            <p className={`text-lg text-center ${guesses[guesses.length - 1].result.isCorrect ? 'text-green-500' : 'text-red-500'} drop-shadow-lg mt-4`}>
+              {guesses[guesses.length - 1].result.isCorrect ? 'Correct!' : 'Wrong!'}
+            </p>
+          )}
+          {guesses.length > 0 && !guesses[guesses.length - 1].result.isCorrect && (
+            <div className="mt-4 text-center">
+              <img
+                src={`http://localhost:5000${guesses[guesses.length - 1].result.dailyImage}`}
+                alt="Daily Item"
+                className="w-24 mx-auto"
+              />
+            </div>
+          )}
         </div>
+      </div>
     </div>
   );
 };
