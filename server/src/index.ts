@@ -64,24 +64,6 @@ interface Item {
 
 export type ResultTristateCheck = 'Correct' | 'Incorrect' | 'Partial'
 
-app.get('daily', async (req: Request, res: Response) =>{
-  try {
-    const seed = new Date().toISOString().split('T')[0]
-    seedrandom(seed, {global:true})
-    const randomSkip = Math.floor(Math.random() * await itemsCollection.countDocuments());
-    const dailyItem = await itemsCollection.find().skip(randomSkip).limit(1).toArray()
-
-    if (!dailyItem[0]){
-      return res.status(404).json({ error: 'No items in database'})
-    }
-
-    res.json({itemId: dailyItem[0].ID})
-  } catch (error) {
-    console.error('Error in /daily endpoint: ', error)
-    res.status(500).json({error: 'Failed to get daily item'})
-  }
-})
-
 app.get('/api/items/select', async (req: Request, res: Response) => {
   try {
     const items = await itemsCollection.find().sort({ ID: 1 }).toArray();
@@ -120,16 +102,14 @@ app.post('/api/check', async (req: Request, res: Response) => {
       { key: 'elements', mongoField: 'Elements', frontendKey: 'isElementsCorrect' },
     ]
 
-    // Compute tristate checks
     const tristateResults = checks.reduce((acc, { key, mongoField, frontendKey }) => {
-      if (key === 'elements') {
-        // Handle elements (assuming comma-separated string or array)
+      if (key === 'elements' || key === 'type') {
         const selectedElements = Array.isArray(selectedItem[key])
           ? selectedItem[key]
-          : selectedItem[key]?.split(',').map((e: string) => e.trim()) || [];
+          : selectedItem[key]?.split(',').map((e: string) => e.trim()) || []
         const dailyElements = Array.isArray(dailyItem[0][mongoField])
           ? dailyItem[0][mongoField]
-          : dailyItem[0][mongoField]?.split(',').map((e: string) => e.trim()) || [];
+          : dailyItem[0][mongoField]?.split(',').map((e: string) => e.trim()) || []
 
         const hasCommon = selectedElements.some((e: string) => dailyElements.includes(e));
         const isExact = selectedElements.length === dailyElements.length && selectedElements.every((e: string) => dailyElements.includes(e));

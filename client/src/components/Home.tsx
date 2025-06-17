@@ -130,7 +130,7 @@ const Home: React.FC = () => {
           }}
         />
       </div>
-      <div className="m-4 p-4 bg-white border-4 border-amber-400 min-h-10 min-w-170 max-w-170 flex flex-col">
+      <div className="m-4 p-4 bg-white border-4 border-amber-400 min-h-10 w-170 flex flex-col items-center">
         <div className="overflow-x-auto">
           <div className="grid grid-cols-6 gap-1 cursor-pointer w-full">
             <a
@@ -186,19 +186,19 @@ const Home: React.FC = () => {
         <div>
           {guesses.map(({ selected, result }, idx) => (
             <div key={idx} className="grid grid-cols-6 gap-2 w-full mb-2 text-center items-center text-black">
-              <div className="flex flex-col items-center px-2 py-2">
+              <div className="grid-cell flex flex-col items-center border-4 border-black rounded-md">
                 <img
                   src={`http://localhost:5000${selected.item.imageUrl}`}
                   alt={selected.item.name}
-                  className="w-8 h-8 object-contain mb-1"
+                  className="w-16 h-16 object-contain mb-1"
                 />
                 <span className="text-sm">{selected.item.name}</span>
               </div>
-              <span className={`px-2 py-2 text-sm ${result.isRarityCorrect == 'Correct' ? 'bg-green-500' : result.isRarityCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.rarity}</span>
-              <span className={`px-2 py-2 text-sm ${result.isTypeCorrect == 'Correct' ? 'bg-green-500' : result.isTypeCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.type}</span>
-              <span className={`px-2 py-2 text-sm ${result.isManufacturerCorrect == 'Correct' ? 'bg-green-500' : result.isManufacturerCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.manufacturer}</span>
-              <span className={`px-2 py-2 text-sm ${result.isGameCorrect == 'Correct' ? 'bg-green-500' : result.isGameCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.game}</span>
-              <span className={`px-2 py-2 text-sm ${result.isElementsCorrect == 'Correct' ? 'bg-green-500' : result.isElementsCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.elements}</span>
+              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isRarityCorrect == 'Correct' ? 'bg-green-500' : result.isRarityCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.rarity}</span>
+              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isTypeCorrect == 'Correct' ? 'bg-green-500' : result.isTypeCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.type}</span>
+              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isManufacturerCorrect == 'Correct' ? 'bg-green-500' : result.isManufacturerCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.manufacturer}</span>
+              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isGameCorrect == 'Correct' ? 'bg-green-500' : result.isGameCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.game}</span>
+              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isElementsCorrect == 'Correct' ? 'bg-green-500' : result.isElementsCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.elements}</span>
             </div>
           ))}
           {guesses.length > 0 && (

@@ -20,3 +20,9 @@ html {
 .react-tooltip {
   @apply bg-gray-800 text-white text-sm rounded-lg px-2 py-1 z-50;
 }
+
+.grid-cell {
+  @apply w-24 h-24 flex items-center justify-center text-center border-4 border-black overflow-hidden;
+  font-size: var(--font-size, 26px); /* Shrink font dynamically */
+  line-height: 1;
+}
