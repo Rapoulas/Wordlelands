@@ -18,16 +18,17 @@ const Home: React.FC = () => {
   const [selected, setSelected] = useState<ItemOption | null>(null)
   const [guesses, setGuesses] = useState<
     { selected: ItemOption; result: {
-      isCorrect: boolean;
-      isRarityCorrect: ResultTristateCheck;
-      isTypeCorrect: ResultTristateCheck;
-      isManufacturerCorrect: ResultTristateCheck;
-      isGameCorrect: ResultTristateCheck;
-      isElementsCorrect: ResultTristateCheck;
-      dailyId: number;
-      dailyImage: string; 
+      isCorrect: boolean
+      isRarityCorrect: ResultTristateCheck
+      isTypeCorrect: ResultTristateCheck
+      isManufacturerCorrect: ResultTristateCheck
+      isGameCorrect: ResultTristateCheck
+      isElementsCorrect: ResultTristateCheck
+      dailyId: number
+      dailyImage: string
     } }[]
-  >([]); 
+  >([]);
+  const [visibleRows, setVisibleRows] = useState<number[]>([])
 
   useEffect(() => {
     fetch('http://localhost:5000/api/items/select')
@@ -43,8 +44,8 @@ const Home: React.FC = () => {
         redText: item.redText,
         item
       }))))
-      .catch(err => console.error('Error fetching items:', err));
-  }, []);
+      .catch(err => console.error('Error fetching items:', err))
+  }, [])
 
   const checkItem = async (option: ItemOption | null) => {
     if (!option) return
@@ -87,7 +88,7 @@ const Home: React.FC = () => {
         <span className="mt-12 drop-shadow-lg">GUESS TODAY'S WEAPON!</span>
         <Select
           options={options}
-          value={selected}
+          value={null}
           onChange={handleSelect}
           formatOptionLabel={formatOptionLabel}
           placeholder="Search weapon name..."
@@ -130,13 +131,13 @@ const Home: React.FC = () => {
           }}
         />
       </div>
-      <div className="m-4 p-4 bg-white border-4 border-amber-400 min-h-10 w-170 flex flex-col items-center">
+      <div className="m-4 p-4 bg-[#20252c] border-4 border-amber-600 min-h-10 w-170 flex flex-col items-center rounded-md">
         <div className="overflow-x-auto">
           <div className="grid grid-cols-6 gap-1 cursor-pointer w-full">
             <a
               data-tooltip-id="Item"
               data-tooltip-content="Name of the Item"
-              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
+              className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
             >
               <Tooltip id="Item" />
               —Item—
@@ -144,7 +145,7 @@ const Home: React.FC = () => {
             <a
               data-tooltip-id="Rarity"
               data-tooltip-content="Name of the many possible rarities (e.x.: Common, Epic)"
-              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
+              className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
             >
               <Tooltip id="Rarity" />
               —Rarity—
@@ -152,7 +153,7 @@ const Home: React.FC = () => {
             <a
               data-tooltip-id="Type"
               data-tooltip-content="Type of the item (e.x.: Assault Rifle, Pistol)"
-              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
+              className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
             >
               <Tooltip id="Type" />
               —Type—
@@ -160,7 +161,7 @@ const Home: React.FC = () => {
             <a
               data-tooltip-id="Manufacturer"
               data-tooltip-content="Name of the manufacturer (e.x.: Jakobs, Hyperion)"
-              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
+              className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
             >
               <Tooltip id="Manufacturer" />
               —Manufacturer—
@@ -168,7 +169,7 @@ const Home: React.FC = () => {
             <a
               data-tooltip-id="Game"
               data-tooltip-content="Which game the weapon is present in"
-              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
+              className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
             >
               <Tooltip id="Game" />
               —Game—
@@ -176,7 +177,7 @@ const Home: React.FC = () => {
             <a
               data-tooltip-id="Elements"
               data-tooltip-content="Which elements the weapon can spawn in"
-              className="text-center text-black py-2 border-b-4 border-t-4 border-black m-0.5 mb-4"
+              className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
             >
               <Tooltip id="Elements" />
               —Elements—
@@ -184,37 +185,23 @@ const Home: React.FC = () => {
           </div>
         </div>
         <div>
-          {guesses.map(({ selected, result }, idx) => (
+          {guesses.map(({ selected, result }, idx) =>(
             <div key={idx} className="grid grid-cols-6 gap-2 w-full mb-2 text-center items-center text-black">
-              <div className="grid-cell flex flex-col items-center border-4 border-black rounded-md">
+              <div className="grid-cell flex flex-col items-center border-4 border-black bg-gray-400 rounded-md" style={{ animationDelay: '0s' } as React.CSSProperties} >
                 <img
                   src={`http://localhost:5000${selected.item.imageUrl}`}
                   alt={selected.item.name}
-                  className="w-16 h-16 object-contain mb-1"
+                  className="w-24 h-24 object-contain mb-1"
                 />
-                <span className="text-sm">{selected.item.name}</span>
+                <span className="text-sm text-black">{selected.item.name}</span>
               </div>
-              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isRarityCorrect == 'Correct' ? 'bg-green-500' : result.isRarityCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.rarity}</span>
-              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isTypeCorrect == 'Correct' ? 'bg-green-500' : result.isTypeCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.type}</span>
-              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isManufacturerCorrect == 'Correct' ? 'bg-green-500' : result.isManufacturerCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.manufacturer}</span>
-              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isGameCorrect == 'Correct' ? 'bg-green-500' : result.isGameCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.game}</span>
-              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isElementsCorrect == 'Correct' ? 'bg-green-500' : result.isElementsCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`}>{selected.item.elements}</span>
+              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isRarityCorrect == 'Correct' ? 'bg-green-500' : result.isRarityCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '0.5s' } as React.CSSProperties}>{selected.item.rarity}</span>
+              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isTypeCorrect == 'Correct' ? 'bg-green-500' : result.isTypeCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1s' } as React.CSSProperties}>{selected.item.type}</span>
+              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isManufacturerCorrect == 'Correct' ? 'bg-green-500' : result.isManufacturerCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.5s' } as React.CSSProperties}>{selected.item.manufacturer}</span>
+              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isGameCorrect == 'Correct' ? 'bg-green-500' : result.isGameCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '2s' } as React.CSSProperties}>{selected.item.game}</span>
+              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isElementsCorrect == 'Correct' ? 'bg-green-500' : result.isElementsCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '2.5s' } as React.CSSProperties}>{selected.item.elements}</span>
             </div>
           ))}
-          {guesses.length > 0 && (
-            <p className={`text-lg text-center ${guesses[guesses.length - 1].result.isCorrect ? 'text-green-500' : 'text-red-500'} drop-shadow-lg mt-4`}>
-              {guesses[guesses.length - 1].result.isCorrect ? 'Correct!' : 'Wrong!'}
-            </p>
-          )}
-          {guesses.length > 0 && !guesses[guesses.length - 1].result.isCorrect && (
-            <div className="mt-4 text-center">
-              <img
-                src={`http://localhost:5000${guesses[guesses.length - 1].result.dailyImage}`}
-                alt="Daily Item"
-                className="w-24 mx-auto"
-              />
-            </div>
-          )}
         </div>
       </div>
     </div>

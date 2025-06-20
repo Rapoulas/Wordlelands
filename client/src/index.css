@@ -1,6 +1,16 @@
 @import "tailwindcss";
+@tailwind utilities;
 
-
+@keyframes cardFlip {
+  from {
+    transform: rotateY(90deg);
+    opacity: 1;
+  }
+  to {
+    transform: rotateY(0deg);
+    opacity: 1;
+  }
+}
 
 @font-face {
     font-family: 'blfont';
@@ -23,6 +33,14 @@ html {
 
 .grid-cell {
   @apply w-24 h-24 flex items-center justify-center text-center border-4 border-black overflow-hidden;
-  font-size: var(--font-size, 26px); /* Shrink font dynamically */
+  font-size: var(--font-size, 26px);
   line-height: 1;
+  opacity: 0;
+  transform: rotateY(90deg);
+  backface-visibility: hidden;
+  animation: cardFlip 0.5s ease-in-out forwards;
+}
+
+.grid-cols-6 {
+  perspective: 100000px;
 }
