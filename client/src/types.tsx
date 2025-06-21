@@ -8,4 +8,5 @@ export interface Item {
   elements: string;
   redText: string;
   imageUrl: string;
+  dlc: string;
 }

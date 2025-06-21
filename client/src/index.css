@@ -40,7 +40,3 @@ html {
   backface-visibility: hidden;
   animation: cardFlip 0.5s ease-in-out forwards;
 }
-
-.grid-cols-6 {
-  perspective: 100000px;
-}

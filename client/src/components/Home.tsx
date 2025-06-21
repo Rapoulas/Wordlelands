@@ -24,6 +24,7 @@ const Home: React.FC = () => {
       isManufacturerCorrect: ResultTristateCheck
       isGameCorrect: ResultTristateCheck
       isElementsCorrect: ResultTristateCheck
+      isDLCCorrect: ResultTristateCheck
       dailyId: number
       dailyImage: string
     } }[]
@@ -42,6 +43,7 @@ const Home: React.FC = () => {
         game: item.game,
         element: item.elements,
         redText: item.redText,
+        dlc: item.dlc,
         item
       }))))
       .catch(err => console.error('Error fetching items:', err))
@@ -131,9 +133,9 @@ const Home: React.FC = () => {
           }}
         />
       </div>
-      <div className="m-4 p-4 bg-[#20252c] border-4 border-amber-600 min-h-10 w-170 flex flex-col items-center rounded-md">
+      <div className="m-4 p-4 bg-[#20252c] border-4 border-amber-600 min-h-10 w-192 flex flex-col items-center rounded-md">
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-6 gap-1 cursor-pointer w-full">
+          <div className="grid grid-cols-7 gap-1 cursor-pointer w-full">
             <a
               data-tooltip-id="Item"
               data-tooltip-content="Name of the Item"
@@ -182,16 +184,24 @@ const Home: React.FC = () => {
               <Tooltip id="Elements" />
               —Elements—
             </a>
+            <a
+              data-tooltip-id="Elements"
+              data-tooltip-content="Which elements the weapon can spawn in"
+              className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
+            >
+              <Tooltip id="DLCs" />
+              —DLC—
+            </a>
           </div>
         </div>
         <div>
           {guesses.map(({ selected, result }, idx) =>(
-            <div key={idx} className="grid grid-cols-6 gap-2 w-full mb-2 text-center items-center text-black">
+            <div key={idx} className="grid grid-cols-7 gap-2 w-full mb-2 text-center items-center text-black">
               <div className="grid-cell flex flex-col items-center border-4 border-black bg-gray-400 rounded-md" style={{ animationDelay: '0s' } as React.CSSProperties} >
                 <img
                   src={`http://localhost:5000${selected.item.imageUrl}`}
                   alt={selected.item.name}
-                  className="w-24 h-24 object-contain mb-1"
+                  className="w-22 h-22 object-contain mb-1"
                 />
                 <span className="text-sm text-black">{selected.item.name}</span>
               </div>
@@ -200,6 +210,7 @@ const Home: React.FC = () => {
               <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isManufacturerCorrect == 'Correct' ? 'bg-green-500' : result.isManufacturerCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.5s' } as React.CSSProperties}>{selected.item.manufacturer}</span>
               <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isGameCorrect == 'Correct' ? 'bg-green-500' : result.isGameCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '2s' } as React.CSSProperties}>{selected.item.game}</span>
               <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isElementsCorrect == 'Correct' ? 'bg-green-500' : result.isElementsCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '2.5s' } as React.CSSProperties}>{selected.item.elements}</span>
+              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isDLCCorrect == 'Correct' ? 'bg-green-500' : result.isDLCCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '3s' } as React.CSSProperties}>{selected.item.dlc}</span>
             </div>
           ))}
         </div>

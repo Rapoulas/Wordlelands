@@ -47,6 +47,7 @@ interface MongoItem {
   Game: string;
   Elements: string;
   'Red Text': string;
+  DLC: string;
 }
 
 interface Item {
@@ -59,6 +60,7 @@ interface Item {
   elements: string;
   redText: string;
   imageUrl: string;
+  dlc: string;
 }
 
 
@@ -76,7 +78,8 @@ app.get('/api/items/select', async (req: Request, res: Response) => {
       game: item.Game,
       elements: item.Elements,
       redText: item['Red Text'],
-      imageUrl: `/images/${item.ID}.webp`
+      imageUrl: `/images/${item.ID}.webp`,
+      dlc: item.DLC
     })));
   } catch (error) {
     console.error('Error fetching items:', error);
@@ -100,10 +103,11 @@ app.post('/api/check', async (req: Request, res: Response) => {
       { key: 'manufacturer', mongoField: 'Manufacturer', frontendKey: 'isManufacturerCorrect' },
       { key: 'game', mongoField: 'Game', frontendKey: 'isGameCorrect' },
       { key: 'elements', mongoField: 'Elements', frontendKey: 'isElementsCorrect' },
+      { key: 'dlc', mongoField: 'DLC', frontendKey: 'isDLCCorrect' }
     ]
 
     const tristateResults = checks.reduce((acc, { key, mongoField, frontendKey }) => {
-      if (key === 'elements' || key === 'type') {
+      if (key === 'elements' || key === 'type' || key === 'rarity' || key === 'manufacturer' || key === 'game' || key === 'dlc') {
         const selectedElements = Array.isArray(selectedItem[key])
           ? selectedItem[key]
           : selectedItem[key]?.split(',').map((e: string) => e.trim()) || []
