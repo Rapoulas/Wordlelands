@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Select from 'react-select';
 import type {ResultTristateCheck} from '../../../server/src/index'
 import { Tooltip } from 'react-tooltip'
+import { v4 as uuidv4 } from 'uuid';
 
 interface ItemOption {
   value: number;
@@ -18,18 +19,33 @@ const Home: React.FC = () => {
   const [selected, setSelected] = useState<ItemOption | null>(null)
   const [guesses, setGuesses] = useState<
     { selected: ItemOption; result: {
-      isCorrect: boolean
-      isRarityCorrect: ResultTristateCheck
-      isTypeCorrect: ResultTristateCheck
-      isManufacturerCorrect: ResultTristateCheck
-      isGameCorrect: ResultTristateCheck
-      isElementsCorrect: ResultTristateCheck
-      isDLCCorrect: ResultTristateCheck
-      dailyId: number
-      dailyImage: string
-    } }[]
-  >([]);
-  const [visibleRows, setVisibleRows] = useState<number[]>([])
+        isCorrect: boolean
+        isRarityCorrect: ResultTristateCheck
+        isTypeCorrect: ResultTristateCheck
+        isManufacturerCorrect: ResultTristateCheck
+        isGameCorrect: ResultTristateCheck
+        isElementsCorrect: ResultTristateCheck
+        isDLCCorrect: ResultTristateCheck
+        dailyId: number
+        dailyImage: string
+      }
+      guessId: string
+    }[]
+  >([])
+  const [visibleRows, setVisibleRows] = useState<string[]>([])
+  const [animatedRows, setAnimatedRows] = useState<string[]>([])
+
+  useEffect(() => {
+    if (guesses.length > visibleRows.length) {
+      setTimeout(() => {
+        const newGuessId = guesses[0].guessId;
+        setVisibleRows([newGuessId, ...visibleRows])
+        setTimeout(() => {
+          setAnimatedRows([newGuessId, ...animatedRows])
+        }, 2100)
+      })
+    }
+  }, [guesses, visibleRows, animatedRows])
 
   useEffect(() => {
     fetch('http://localhost:5000/api/items/select')
@@ -58,7 +74,7 @@ const Home: React.FC = () => {
         body: JSON.stringify({selectedItem: option.item})
       })
       const data = await res.json()
-      setGuesses([...guesses, { selected: option, result: data }]); 
+      setGuesses([{ selected: option, result: data, guessId: uuidv4()}, ...guesses]); 
       setSelected(null); 
     } catch (err) {
       console.error('Error checking item:', err)
@@ -195,24 +211,26 @@ const Home: React.FC = () => {
           </div>
         </div>
         <div>
-          {guesses.map(({ selected, result }, idx) =>(
-            <div key={idx} className="grid grid-cols-7 gap-2 w-full mb-2 text-center items-center text-black">
-              <div className="grid-cell flex flex-col items-center border-4 border-black bg-gray-400 rounded-md" style={{ animationDelay: '0s' } as React.CSSProperties} >
-                <img
-                  src={`http://localhost:5000${selected.item.imageUrl}`}
-                  alt={selected.item.name}
-                  className="w-22 h-22 object-contain mb-1"
-                />
-                <span className="text-sm text-black">{selected.item.name}</span>
+          {guesses.map(({ selected, result, guessId }) =>
+            visibleRows.includes(guessId) ? (
+              <div key={guessId} className="grid grid-cols-7 gap-2 w-full mb-2 text-center items-center text-black">
+                <div className="grid-cell flex flex-col items-center border-4 border-black bg-gray-400 rounded-md" style={{ animationDelay: '0s' } as React.CSSProperties} >
+                  <img
+                    src={`http://localhost:5000${selected.item.imageUrl}`}
+                    alt={selected.item.name}
+                    className="w-22 h-22 object-contain mb-1"
+                  />
+                  <span className="text-sm text-black">{selected.item.name}</span>
+                </div>
+                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isRarityCorrect == 'Correct' ? 'bg-green-500' : result.isRarityCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '0.3s' } as React.CSSProperties}>{selected.item.rarity}</span>
+                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isTypeCorrect == 'Correct' ? 'bg-green-500' : result.isTypeCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '0.6s' } as React.CSSProperties}>{selected.item.type}</span>
+                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isManufacturerCorrect == 'Correct' ? 'bg-green-500' : result.isManufacturerCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '0.9s' } as React.CSSProperties}>{selected.item.manufacturer}</span>
+                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isGameCorrect == 'Correct' ? 'bg-green-500' : result.isGameCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.2s' } as React.CSSProperties}>{selected.item.game}</span>
+                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isElementsCorrect == 'Correct' ? 'bg-green-500' : result.isElementsCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.5s' } as React.CSSProperties}>{selected.item.elements}</span>
+                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isDLCCorrect == 'Correct' ? 'bg-green-500' : result.isDLCCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.8s' } as React.CSSProperties}>{selected.item.dlc}</span>
               </div>
-              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isRarityCorrect == 'Correct' ? 'bg-green-500' : result.isRarityCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '0.5s' } as React.CSSProperties}>{selected.item.rarity}</span>
-              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isTypeCorrect == 'Correct' ? 'bg-green-500' : result.isTypeCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1s' } as React.CSSProperties}>{selected.item.type}</span>
-              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isManufacturerCorrect == 'Correct' ? 'bg-green-500' : result.isManufacturerCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.5s' } as React.CSSProperties}>{selected.item.manufacturer}</span>
-              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isGameCorrect == 'Correct' ? 'bg-green-500' : result.isGameCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '2s' } as React.CSSProperties}>{selected.item.game}</span>
-              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isElementsCorrect == 'Correct' ? 'bg-green-500' : result.isElementsCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '2.5s' } as React.CSSProperties}>{selected.item.elements}</span>
-              <span className={`grid-cell text-sm border-4 border-black rounded-md ${result.isDLCCorrect == 'Correct' ? 'bg-green-500' : result.isDLCCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '3s' } as React.CSSProperties}>{selected.item.dlc}</span>
-            </div>
-          ))}
+            ): null
+          )}
         </div>
       </div>
     </div>
