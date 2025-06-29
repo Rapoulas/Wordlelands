@@ -1,14 +1,14 @@
-import backgroundImage from '../assets/background.jpeg';
-import logoImage from '../assets/logo.png';
-import cardImage from '../assets/card.png';
-import type { Item } from '../types';
-import { useEffect, useState } from 'react';
-import Select from 'react-select';
+import backgroundImage from '../assets/background.jpeg'
+import logoImage from '../assets/logo.png'
+import type { Item } from '../types'
+import { useEffect, useState } from 'react'
 import type {ResultTristateCheck} from '../../../server/src/index'
 import { Tooltip } from 'react-tooltip'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
+import ItemSelection from './ItemSelection'
+import WinScreen from './WinScreen'
 
-interface ItemOption {
+export interface ItemOption {
   value: number;
   label: string;
   item: Item;
@@ -16,7 +16,8 @@ interface ItemOption {
 
 const Home: React.FC = () => {
   const [options, setOptions] = useState<ItemOption[]>([])
-  const [selected, setSelected] = useState<ItemOption | null>(null)
+  const [, setSelected] = useState<ItemOption | null>(null)
+  const [isGameWon, setIsGameWon] = useState(false)
   const [guesses, setGuesses] = useState<
     { selected: ItemOption; result: {
         isCorrect: boolean
@@ -33,19 +34,22 @@ const Home: React.FC = () => {
     }[]
   >([])
   const [visibleRows, setVisibleRows] = useState<string[]>([])
-  const [animatedRows, setAnimatedRows] = useState<string[]>([])
+  const [animatedCells, setAnimatedCells] = useState<{ [key: string]: number }>({})
 
   useEffect(() => {
     if (guesses.length > visibleRows.length) {
       setTimeout(() => {
         const newGuessId = guesses[0].guessId;
         setVisibleRows([newGuessId, ...visibleRows])
-        setTimeout(() => {
-          setAnimatedRows([newGuessId, ...animatedRows])
-        }, 2100)
-      })
+      }, 200)
     }
-  }, [guesses, visibleRows, animatedRows])
+  }, [guesses, visibleRows])
+
+  useEffect(() => {
+    if (guesses.length > 0 && guesses[0].result.isCorrect) {
+      setIsGameWon(true);
+    }
+  }, [guesses]);
 
   useEffect(() => {
     fetch('http://localhost:5000/api/items/select')
@@ -93,62 +97,31 @@ const Home: React.FC = () => {
     </div>
   );
 
+  const handleAnimationEnd = (guessId: string, cellIndex: number) => {
+    setAnimatedCells(prev => ({
+      ...prev,
+      [`${guessId}-${cellIndex}`]: 1,
+    }))
+  }
+
   return (
     <div
       className="min-h-screen bg-fixed flex flex-col items-center justify-start p-4 bg-cover bg-center h-[200vh]"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <img src={logoImage} alt="Logo" className="w-[512px] h-[128px] object-contain" />
-      <div
-        className="m-4 p-4 w-[524px] h-[396px] flex flex-col items-center justify-start text-white text-2xl font-bold bg-contain bg-no-repeat bg-center"
-        style={{ backgroundImage: `url(${cardImage})` }}
-      >
-        <span className="mt-12 drop-shadow-lg">GUESS TODAY'S WEAPON!</span>
-        <Select
-          options={options}
-          value={null}
-          onChange={handleSelect}
-          formatOptionLabel={formatOptionLabel}
-          placeholder="Search weapon name..."
-          className="mt-8 w-full text-xl text-white font-bold"
-          styles={{
-            control: (base) => ({
-              ...base,
-              backgroundColor: '#1f1f22',
-              borderColor: '#1f1f22',
-              borderRadius: '0.75rem',
-              padding: '0.5rem',
-              color: 'white',
-              boxShadow: 'none',
-              '&:hover': { borderColor: '#1f1f22' }
-            }),
-            input: (base) => ({
-              ...base,
-              color: 'white'
-            }),
-            placeholder: (base) => ({
-              ...base,
-              color: 'white',
-              opacity: 0.7
-            }),
-            singleValue: (base) => ({
-              ...base,
-              color: 'white'
-            }),
-            menu: (base) => ({
-              ...base,
-              backgroundColor: '#1f1f22',
-              borderRadius: '0.75rem'
-            }),
-            option: (base, { isFocused }) => ({
-              ...base,
-              backgroundColor: isFocused ? '#2a2a2d' : '#1f1f22',
-              color: 'white',
-              padding: '0.5rem'
-            })
-          }}
-        />
-      </div>
+        {isGameWon ? (
+          <WinScreen
+              selected={guesses[0].selected.item}
+            />
+          ) : (
+            <ItemSelection
+              options={options}
+              handleSelect={handleSelect}
+              formatOptionLabel={formatOptionLabel}
+            />
+          )
+        }
       <div className="m-4 p-4 bg-[#20252c] border-4 border-amber-600 min-h-10 w-192 flex flex-col items-center rounded-md">
         <div className="overflow-x-auto">
           <div className="grid grid-cols-7 gap-1 cursor-pointer w-full">
@@ -201,8 +174,8 @@ const Home: React.FC = () => {
               —Elements—
             </a>
             <a
-              data-tooltip-id="Elements"
-              data-tooltip-content="Which elements the weapon can spawn in"
+              data-tooltip-id="DLCs"
+              data-tooltip-content="Which content this weapon came from in the games it is present at"
               className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
             >
               <Tooltip id="DLCs" />
@@ -214,7 +187,7 @@ const Home: React.FC = () => {
           {guesses.map(({ selected, result, guessId }) =>
             visibleRows.includes(guessId) ? (
               <div key={guessId} className="grid grid-cols-7 gap-2 w-full mb-2 text-center items-center text-black">
-                <div className="grid-cell flex flex-col items-center border-4 border-black bg-gray-400 rounded-md" style={{ animationDelay: '0s' } as React.CSSProperties} >
+                <div className={`grid-cell flex flex-col items-center border-4 border-black bg-[#e8e8e8] rounded-md ${animatedCells[`${guessId}-0`] ? 'no-animation' : ''}`} style={{ animationDelay: '0s' } as React.CSSProperties} onAnimationEnd={() => handleAnimationEnd(guessId, 0)}>
                   <img
                     src={`http://localhost:5000${selected.item.imageUrl}`}
                     alt={selected.item.name}
@@ -222,12 +195,12 @@ const Home: React.FC = () => {
                   />
                   <span className="text-sm text-black">{selected.item.name}</span>
                 </div>
-                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isRarityCorrect == 'Correct' ? 'bg-green-500' : result.isRarityCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '0.3s' } as React.CSSProperties}>{selected.item.rarity}</span>
-                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isTypeCorrect == 'Correct' ? 'bg-green-500' : result.isTypeCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '0.6s' } as React.CSSProperties}>{selected.item.type}</span>
-                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isManufacturerCorrect == 'Correct' ? 'bg-green-500' : result.isManufacturerCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '0.9s' } as React.CSSProperties}>{selected.item.manufacturer}</span>
-                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isGameCorrect == 'Correct' ? 'bg-green-500' : result.isGameCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.2s' } as React.CSSProperties}>{selected.item.game}</span>
-                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isElementsCorrect == 'Correct' ? 'bg-green-500' : result.isElementsCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.5s' } as React.CSSProperties}>{selected.item.elements}</span>
-                <span className={`${animatedRows.includes(guessId) ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isDLCCorrect == 'Correct' ? 'bg-green-500' : result.isDLCCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.8s' } as React.CSSProperties}>{selected.item.dlc}</span>
+                <span className={`${animatedCells[`${guessId}-1`] ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isRarityCorrect == 'Correct' ? 'bg-green-500' : result.isRarityCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '0.3s' } as React.CSSProperties } onAnimationEnd={() => handleAnimationEnd(guessId, 1)}>{selected.item.rarity}</span>
+                <span className={`${animatedCells[`${guessId}-2`] ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isTypeCorrect == 'Correct' ? 'bg-green-500' : result.isTypeCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '0.6s' } as React.CSSProperties} onAnimationEnd={() => handleAnimationEnd(guessId, 2)}>{selected.item.type}</span>
+                <span className={`${animatedCells[`${guessId}-3`] ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isManufacturerCorrect == 'Correct' ? 'bg-green-500' : result.isManufacturerCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '0.9s' } as React.CSSProperties} onAnimationEnd={() => handleAnimationEnd(guessId, 3)}>{selected.item.manufacturer}</span>
+                <span className={`${animatedCells[`${guessId}-4`] ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isGameCorrect == 'Correct' ? 'bg-green-500' : result.isGameCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.2s' } as React.CSSProperties} onAnimationEnd={() => handleAnimationEnd(guessId, 4)}>{selected.item.game}</span>
+                <span className={`${animatedCells[`${guessId}-5`] ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isElementsCorrect == 'Correct' ? 'bg-green-500' : result.isElementsCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.5s' } as React.CSSProperties} onAnimationEnd={() => handleAnimationEnd(guessId, 5)}>{selected.item.elements}</span>
+                <span className={`${animatedCells[`${guessId}-6`] ? 'no-animation' : ''} grid-cell text-sm border-4 border-black rounded-md ${result.isDLCCorrect == 'Correct' ? 'bg-green-500' : result.isDLCCorrect === 'Partial' ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ animationDelay: '1.8s' } as React.CSSProperties} onAnimationEnd={() => handleAnimationEnd(guessId, 6)}>{selected.item.dlc}</span>
               </div>
             ): null
           )}
