@@ -50,20 +50,6 @@ interface MongoItem {
   DLC: string;
 }
 
-interface Item {
-  id: string;
-  name: string;
-  rarity: string;
-  type: string;
-  manufacturer: string;
-  game: string;
-  elements: string;
-  redText: string;
-  imageUrl: string;
-  dlc: string;
-}
-
-
 export type ResultTristateCheck = 'Correct' | 'Incorrect' | 'Partial'
 
 app.get('/api/items/select', async (req: Request, res: Response) => {

@@ -1,5 +1,6 @@
 import cardImage from '../assets/card.png'
 import type { Item } from '../types'
+import CountdownTimer from './CountdownTimer'
 
 const WinScreen: React.FC<{selected: Item}> = ({selected}) => {
   return (
@@ -17,6 +18,7 @@ const WinScreen: React.FC<{selected: Item}> = ({selected}) => {
         />
         <span className="text-sm text-black">{selected.name}</span>
       </div>
+      <CountdownTimer/>
     </div>
   )
 }
