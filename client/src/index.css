@@ -12,6 +12,26 @@
   }
 }
 
+@keyframes shake {
+  0% { transform: translateX(0); }
+  6.25% { transform: translateX(-4); }
+  12.5% { transform: translateX(4px); }
+  18.75% { transform: translateX(-4px); }
+  25% { transform: translateX(4px); }
+  31.25% { transform: translateX(-4px); }
+  37.5% { transform: translateX(4px); }
+  43.75% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  56.25% { transform: translateX(-4px); }
+  62.5% { transform: translateX(4px); }
+  68.75% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+  81.25% { transform: translateX(-4px); }
+  87.5% { transform: translateX(4px); }
+  93.75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}
+
 @font-face {
     font-family: 'blfont';
     src: url(../src/assets/BLFont.otf) format('truetype');
@@ -45,4 +65,8 @@ html {
   transform: rotateY(0deg);
   opacity: 1;
   animation: none;
+}
+
+.duplicate-message {
+  animation: shake 1s ease-in-out;
 }

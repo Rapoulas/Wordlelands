@@ -4,15 +4,17 @@ import type { ItemOption } from './Home';
 import type { JSX } from 'react';
 
 interface WeaponGuessInputProps {
-  options: ItemOption[];
-  handleSelect: (option: ItemOption | null) => void;
-  formatOptionLabel: ({ label, item }: ItemOption) => JSX.Element;
+  options: ItemOption[]
+  handleSelect: (option: ItemOption | null) => void
+  formatOptionLabel: ({ label, item }: ItemOption) => JSX.Element
+  duplicateMessage: string | null
 }
 
 const ItemSelection: React.FC<WeaponGuessInputProps> = ({
   options,
   handleSelect,
   formatOptionLabel,
+  duplicateMessage
 }) => {
   return (
     <div
@@ -64,6 +66,11 @@ const ItemSelection: React.FC<WeaponGuessInputProps> = ({
           }),
         }}
       />
+      {duplicateMessage && (
+        <div className="duplicate-message mt-5 text-red-400 text-lg font-bold drop-shadow-lg text-outline p-2 rounded-md">
+          {duplicateMessage}
+        </div>
+      )}
     </div>
   );
 };
