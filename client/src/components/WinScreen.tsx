@@ -5,7 +5,7 @@ import CountdownTimer from './CountdownTimer'
 const WinScreen: React.FC<{selected: Item}> = ({selected}) => {
   return (
     <div
-      className="m-4 p-4 w-[524px] h-[396px] flex flex-col items-center justify-start text-white text-2xl font-bold bg-contain bg-no-repeat bg-center"
+      className="m-4 p-4 w-[524px] h-[396px] flex flex-col items-center justify-start text-white text-2xl bg-contain bg-no-repeat bg-center"
       style={{ backgroundImage: `url(${cardImage})` }}
     >
       <span className="mt-6 drop-shadow-lg text-outline">YOU WIN!</span>

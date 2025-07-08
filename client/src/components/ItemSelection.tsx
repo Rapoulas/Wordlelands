@@ -1,7 +1,7 @@
-import cardImage from '../assets/card.png';
-import Select from 'react-select';
-import type { ItemOption } from './Home';
-import type { JSX } from 'react';
+import cardImage from '../assets/card.png'
+import Select from 'react-select'
+import type { ItemOption } from './Home'
+import type { JSX } from 'react'
 
 interface WeaponGuessInputProps {
   options: ItemOption[]
@@ -18,17 +18,17 @@ const ItemSelection: React.FC<WeaponGuessInputProps> = ({
 }) => {
   return (
     <div
-      className="m-4 p-4 w-[524px] h-[396px] flex flex-col items-center justify-start text-white text-2xl font-bold bg-contain bg-no-repeat bg-center"
+      className="m-4 p-4 w-[524px] h-[396px] flex flex-col items-center justify-start text-white text-2xl bg-contain bg-no-repeat bg-center"
       style={{ backgroundImage: `url(${cardImage})` }}
     >
-      <span className="mt-12 drop-shadow-lg text-outline">GUESS TODAY'S WEAPON!</span>
+      <span className="mt-12 drop-shadow-lg">GUESS TODAY'S WEAPON!</span>
       <Select
         options={options}
         value={null}
         onChange={handleSelect}
         formatOptionLabel={formatOptionLabel}
         placeholder="Search weapon name..."
-        className="mt-8 w-full text-xl text-white font-bold"
+        className="mt-8 w-full text-xl text-white"
         styles={{
           control: (base) => ({
             ...base,
@@ -67,7 +67,7 @@ const ItemSelection: React.FC<WeaponGuessInputProps> = ({
         }}
       />
       {duplicateMessage && (
-        <div className="duplicate-message mt-5 text-red-400 text-lg font-bold drop-shadow-lg text-outline p-2 rounded-md">
+        <div className="duplicate-message mt-5 text-red-400 text-lg drop-shadow-lg text-outline p-2 rounded-md">
           {duplicateMessage}
         </div>
       )}

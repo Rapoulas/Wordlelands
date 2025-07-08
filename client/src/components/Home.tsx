@@ -1,6 +1,7 @@
 import backgroundImage from '../assets/background.jpeg'
 import logoImage from '../assets/logo.png'
 import type { Item } from '../types'
+import winSound from '../assets/LegendaryDrop.mp3'
 import { useEffect, useState } from 'react'
 import type {ResultTristateCheck} from '../../../server/src/index'
 import { v4 as uuidv4 } from 'uuid'
@@ -48,6 +49,8 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (guesses.length > 0 && guesses[0].result.isCorrect) {
+      const audio = new Audio(winSound);
+      audio.play().catch(err => console.error('Error playing win sound:', err));
       setIsGameWon(true)
     }
   }, [guesses]);
@@ -121,7 +124,7 @@ const Home: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen bg-fixed flex flex-col items-center justify-start p-4 bg-cover bg-center h-[200vh]"
+      className="min-h-screen bg-fixed flex flex-col items-center justify-start p-4 bg-cover bg-center"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <img src={logoImage} alt="Logo" className="w-[512px] h-[128px] object-contain" />
