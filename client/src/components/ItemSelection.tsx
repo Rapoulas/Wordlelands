@@ -1,4 +1,5 @@
 import cardImage from '../assets/card.png'
+import hpImage from '../assets/HP.png'
 import Select from 'react-select'
 import type { ItemOption } from './Home'
 import type { JSX } from 'react'
@@ -8,13 +9,15 @@ interface WeaponGuessInputProps {
   handleSelect: (option: ItemOption | null) => void
   formatOptionLabel: ({ label, item }: ItemOption) => JSX.Element
   duplicateMessage: string | null
+  lives: number
 }
 
 const ItemSelection: React.FC<WeaponGuessInputProps> = ({
   options,
   handleSelect,
   formatOptionLabel,
-  duplicateMessage
+  duplicateMessage,
+  lives
 }) => {
   return (
     <div
@@ -22,13 +25,17 @@ const ItemSelection: React.FC<WeaponGuessInputProps> = ({
       style={{ backgroundImage: `url(${cardImage})` }}
     >
       <span className="mt-12 drop-shadow-lg">GUESS TODAY'S WEAPON!</span>
+      <div className="mt-2 flex justify-start space-x-1">
+        <img src={hpImage} alt="Lives" className="w-6 h-6" />
+        <span className="text-2xl text-white drop-shadow-lg text-outline">{lives}</span>
+      </div>
       <Select
         options={options}
         value={null}
         onChange={handleSelect}
         formatOptionLabel={formatOptionLabel}
         placeholder="Search weapon name..."
-        className="mt-8 w-full text-xl text-white"
+        className="mt-2 w-full text-xl text-white"
         styles={{
           control: (base) => ({
             ...base,

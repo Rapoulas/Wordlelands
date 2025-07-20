@@ -1,6 +1,5 @@
 import { Tooltip } from 'react-tooltip';
 import type { ItemOption } from './Home';
-import type { JSX } from 'react';
 import type { ResultTristateCheck } from '../../../server/src';
 
 interface WeaponGuessInputProps {
@@ -44,7 +43,7 @@ const GuessesGrid: React.FC<WeaponGuessInputProps> = ({
             </a>
             <a
               data-tooltip-id="Rarity"
-              data-tooltip-content="Name of the many possible rarities (e.x.: Common, Epic)"
+              data-tooltip-content="Which rarity the item shows up in (e.x.: Common, Epic)"
               className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
             >
               <Tooltip id="Rarity" />
@@ -68,7 +67,7 @@ const GuessesGrid: React.FC<WeaponGuessInputProps> = ({
             </a>
             <a
               data-tooltip-id="Game"
-              data-tooltip-content="Which game the weapon is present in (e.x.: Borderlands 1, Borderlands The Pre-Sequel)"
+              data-tooltip-content="Which game the item is present in (e.x.: Borderlands 1, Borderlands The Pre-Sequel)"
               className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
             >
               <Tooltip id="Game" />
@@ -76,7 +75,7 @@ const GuessesGrid: React.FC<WeaponGuessInputProps> = ({
             </a>
             <a
               data-tooltip-id="Elements"
-              data-tooltip-content="Which elements the weapon can spawn in (e.x.: Non-elemental, Shock, Fire)"
+              data-tooltip-content="Which elements the item can spawn in (e.x.: Non-elemental, Shock, Fire)"
               className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
             >
               <Tooltip id="Elements" />
@@ -84,7 +83,7 @@ const GuessesGrid: React.FC<WeaponGuessInputProps> = ({
             </a>
             <a
               data-tooltip-id="DLCs"
-              data-tooltip-content="Which content this weapon came from in the games it is present at (e.x.: Base Game, Dragon Keep, Knoxx)"
+              data-tooltip-content="Which content this item came from in the games it is present at (e.x.: Base Game, Dragon Keep, Knoxx)"
               className="text-center text-white py-2 border-b-4 border-t-4 border-white m-0.5 mb-4"
             >
               <Tooltip id="DLCs" />
@@ -96,11 +95,11 @@ const GuessesGrid: React.FC<WeaponGuessInputProps> = ({
           {guesses.map(({ selected, result, guessId }) =>
             visibleRows.includes(guessId) ? (
               <div key={guessId} className="grid grid-cols-7 gap-2 w-full mb-2 text-center items-center text-black">
-                <div className={`grid-cell flex flex-col items-center border-4 border-black bg-[#e8e8e8] rounded-md ${animatedCells[`${guessId}-0`] ? 'no-animation' : ''}`} style={{ animationDelay: '0s' } as React.CSSProperties} onAnimationEnd={() => handleAnimationEnd(guessId, 0)}>
+                <div className={`grid-cell flex flex-col items-center border-4 border-black bg-[#b5b5b6] rounded-md ${animatedCells[`${guessId}-0`] ? 'no-animation' : ''}`} style={{ animationDelay: '0s' } as React.CSSProperties} onAnimationEnd={() => handleAnimationEnd(guessId, 0)}>
                   <img
                     src={`http://localhost:5000${selected.item.imageUrl}`}
                     alt={selected.item.name}
-                    className="w-22 h-22 object-contain mb-1"
+                    className="w-20 h-20 object-contain mb-1 mt-1"
                   />
                   <span className="text-sm text-black">{selected.item.name}</span>
                 </div>

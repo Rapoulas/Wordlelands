@@ -7,6 +7,7 @@ import type {ResultTristateCheck} from '../../../server/src/index'
 import { v4 as uuidv4 } from 'uuid'
 import ItemSelection from './ItemSelection'
 import WinScreen from './WinScreen'
+import LoseScreen from './LoseScreen'
 import GuessesGrid from './GuessesGrid'
 
 export interface ItemOption {
@@ -30,6 +31,7 @@ const Home: React.FC = () => {
         isDLCCorrect: ResultTristateCheck
         dailyId: number
         dailyImage: string
+        dailyName: string
       }
       guessId: string
     }[]
@@ -37,6 +39,8 @@ const Home: React.FC = () => {
   const [visibleRows, setVisibleRows] = useState<string[]>([])
   const [animatedCells, setAnimatedCells] = useState<{ [key: string]: number }>({})
   const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null)
+  const [lives, setLives] = useState(6)
+  const [isGameLost, setIsGameLost] = useState(false)
 
   useEffect(() => {
     if (guesses.length > visibleRows.length) {
@@ -52,6 +56,8 @@ const Home: React.FC = () => {
       const audio = new Audio(winSound);
       audio.play().catch(err => console.error('Error playing win sound:', err));
       setIsGameWon(true)
+    } else if (guesses.length > 0 && !guesses[0].result.isCorrect && lives === 0) {
+      setIsGameLost(true)
     }
   }, [guesses]);
 
@@ -83,7 +89,7 @@ const Home: React.FC = () => {
   }, [])
 
   const checkItem = async (option: ItemOption | null) => {
-    if (!option) return
+    if (!option || isGameWon || isGameLost) return
     if (guesses.some(guess => guess.selected.item.id === option.item.id)) {
       setDuplicateMessage("THIS ITEM HAS ALREADY BEEN GUESSED!")
       setSelected(null)
@@ -97,7 +103,10 @@ const Home: React.FC = () => {
       })
       const data = await res.json()
       setGuesses([{ selected: option, result: data, guessId: uuidv4()}, ...guesses]); 
-      setSelected(null); 
+      setSelected(null);
+      if (!data.isCorrect){
+        setLives(prev => prev-1)
+      }
     } catch (err) {
       console.error('Error checking item:', err)
     }
@@ -132,12 +141,15 @@ const Home: React.FC = () => {
         <WinScreen
             selected={guesses[0].selected.item}
           />
-        ) : (
+        ) : isGameLost ? (
+          <LoseScreen dailyItem={guesses[0].result} />
+          ) : (
           <ItemSelection
             options={options}
             handleSelect={handleSelect}
             formatOptionLabel={formatOptionLabel}
             duplicateMessage={duplicateMessage}
+            lives = {lives}
           />
         )
       }
