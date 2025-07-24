@@ -79,7 +79,7 @@ const ItemSelection: React.FC<WeaponGuessInputProps> = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
 export default ItemSelection;

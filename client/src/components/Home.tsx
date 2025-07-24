@@ -11,9 +11,9 @@ import LoseScreen from './LoseScreen'
 import GuessesGrid from './GuessesGrid'
 
 export interface ItemOption {
-  value: number;
-  label: string;
-  item: Item;
+  value: number
+  label: string
+  item: Item
 }
 
 const Home: React.FC = () => {
@@ -41,11 +41,12 @@ const Home: React.FC = () => {
   const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null)
   const [lives, setLives] = useState(6)
   const [isGameLost, setIsGameLost] = useState(false)
+  const [isInFFYL, setIsInFFYL] = useState(false)
 
   useEffect(() => {
     if (guesses.length > visibleRows.length) {
       setTimeout(() => {
-        const newGuessId = guesses[0].guessId;
+        const newGuessId = guesses[0].guessId
         setVisibleRows([newGuessId, ...visibleRows])
       }, 200)
     }
@@ -53,13 +54,11 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (guesses.length > 0 && guesses[0].result.isCorrect) {
-      const audio = new Audio(winSound);
-      audio.play().catch(err => console.error('Error playing win sound:', err));
+      const audio = new Audio(winSound)
+      audio.play().catch(err => console.error('Error playing win sound:', err))
       setIsGameWon(true)
-    } else if (guesses.length > 0 && !guesses[0].result.isCorrect && lives === 0) {
-      setIsGameLost(true)
-    }
-  }, [guesses]);
+    } 
+  }, [guesses])
 
   useEffect(() => {
     if (duplicateMessage) {
@@ -88,6 +87,12 @@ const Home: React.FC = () => {
       .catch(err => console.error('Error fetching items:', err))
   }, [])
 
+  useEffect(() => {
+    if (lives == 0){
+      setIsInFFYL(true)
+    }
+  }, [lives])
+
   const checkItem = async (option: ItemOption | null) => {
     if (!option || isGameWon || isGameLost) return
     if (guesses.some(guess => guess.selected.item.id === option.item.id)) {
@@ -101,28 +106,30 @@ const Home: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({selectedItem: option.item})
       })
+
       const data = await res.json()
-      setGuesses([{ selected: option, result: data, guessId: uuidv4()}, ...guesses]); 
-      setSelected(null);
+
+      setGuesses([{ selected: option, result: data, guessId: uuidv4()}, ...guesses])
+      setSelected(null)
       if (!data.isCorrect){
         setLives(prev => prev-1)
       }
     } catch (err) {
       console.error('Error checking item:', err)
     }
-  };
+  }
 
   const handleSelect = (option: ItemOption | null) => {
     setSelected(option)
     checkItem(option)
-  };
+  }
 
   const formatOptionLabel = ({ label, item }: ItemOption) => (
     <div className="flex items-center">
       <img src={`http://localhost:5000${item.imageUrl}`} alt={label} className="w-[70px] mr-2.5" />
       <span>{label}</span>
     </div>
-  );
+  )
 
   const handleAnimationEnd = (guessId: string, cellIndex: number) => {
     setAnimatedCells(prev => ({
@@ -153,6 +160,13 @@ const Home: React.FC = () => {
           />
         )
       }
+      {isInFFYL ? (
+        <div>
+          FFYL
+        </div>
+        ) : null  
+
+      }
       <GuessesGrid
         guesses={guesses}
         visibleRows={visibleRows}
@@ -160,7 +174,7 @@ const Home: React.FC = () => {
         handleAnimationEnd={handleAnimationEnd}
       />
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home
