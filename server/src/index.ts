@@ -117,7 +117,7 @@ app.post('/api/check', async (req: Request, res: Response) => {
       ...tristateResults,
       dailyId: dailyItem[0].ID,
       dailyImage: `/images/${dailyItem[0].ID}.webp`,
-      dailyName: dailyItem[0].name
+      dailyName: dailyItem[0].Name
     });
   } catch (error) {
     console.error('Error checking item:', error);

@@ -74,7 +74,7 @@ const ItemSelection: React.FC<WeaponGuessInputProps> = ({
         }}
       />
       {duplicateMessage && (
-        <div className="duplicate-message mt-5 text-red-400 text-lg drop-shadow-lg text-outline p-2 rounded-md">
+        <div className="duplicate-message mt-2 text-red-400 text-lg drop-shadow-lg text-outline p-2 rounded-md">
           {duplicateMessage}
         </div>
       )}

@@ -9,6 +9,8 @@ import ItemSelection from './ItemSelection'
 import WinScreen from './WinScreen'
 import LoseScreen from './LoseScreen'
 import GuessesGrid from './GuessesGrid'
+import Cookies from 'js-cookie'
+import { calculateTimeLeft } from './CountdownTimer'
 
 export interface ItemOption {
   value: number
@@ -39,9 +41,48 @@ const Home: React.FC = () => {
   const [visibleRows, setVisibleRows] = useState<string[]>([])
   const [animatedCells, setAnimatedCells] = useState<{ [key: string]: number }>({})
   const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null)
-  const [lives, setLives] = useState(6)
+  const [timeLeft, setTimeLeft] = useState({hours: 0, minutes: 0, seconds: 0})
   const [isGameLost, setIsGameLost] = useState(false)
   const [isInFFYL, setIsInFFYL] = useState(false)
+
+  const [winStreak, setWinStreak] = useState(() => {
+    const savedWinStreak = Cookies.get('winStreak')
+    return savedWinStreak ? parseInt(savedWinStreak, 10) : 0
+  })
+
+  const [lastResetDate, setLastResetDate] = useState(() => {
+    const savedDate = Cookies.get('lastResetDate')
+    return savedDate ? new Date(savedDate) : new Date()
+  })
+
+  const [lives, setLives] = useState(() => {
+    const savedLives = Cookies.get('lives')
+    return savedLives ? parseInt(savedLives, 10) : 12
+  })
+
+  useEffect(() => {
+    const checkReset = () => {
+      const now = new Date()
+      const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+      if (today > lastResetDate) {
+        Cookies.remove('guesses')
+        Cookies.remove('lives')
+        Cookies.remove('winStreak')
+        setGuesses([])
+        setLives(12)
+        setWinStreak(0)
+        setLastResetDate(today)
+        Cookies.set('lastResetDate', oday.toISOString(), { expires: 7 })
+      }
+    };
+
+    checkReset();
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft())
+      checkReset()
+    }, 1000);
+    return () => clearInterval(timer)
+  }, [lastResetDate])
 
   useEffect(() => {
     if (guesses.length > visibleRows.length) {
@@ -89,9 +130,69 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (lives == 0){
-      setIsInFFYL(true)
+      //setIsInFFYL(true)
+      setIsGameLost(true)
     }
   }, [lives])
+
+  useEffect(() => {
+  const loadGuesses = async () => {
+    try {
+      const savedGuesses = Cookies.get('guesses')
+      if (savedGuesses) {
+        const guessIds: { itemId: number; guessId: string }[] = JSON.parse(savedGuesses)
+        if (!Array.isArray(guessIds)) return
+
+        const itemsRes = await fetch('http://localhost:5000/api/items/select')
+        const items: Item[] = await itemsRes.json()
+        const newGuesses = []
+        const newVisibleRows = []
+        for (const { itemId, guessId } of guessIds) {
+          const item = items.find(i => i.id === itemId)
+          if (item) {
+            const res = await fetch('http://localhost:5000/api/check', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ selectedItem: item }),
+            })
+            const result = await res.json()
+            newGuesses.push({
+              selected: {
+                value: item.id,
+                label: item.name,
+                item,
+              },
+              result,
+              guessId,
+            })
+            newVisibleRows.push(guessId)
+          }
+        }
+        setGuesses(newGuesses)
+        setVisibleRows(newVisibleRows)
+      }
+    } catch (err) {
+      console.error('Error loading guesses from cookie:', err)
+      setGuesses([])
+    }
+  }
+    loadGuesses()
+  }, [])
+
+  //Cookies
+  useEffect(() => {
+    const guessIds = guesses.map(({ selected, guessId }) => ({ itemId: selected.value, guessId }))
+    const guessesString = JSON.stringify(guessIds)
+    Cookies.set('guesses', guessesString, { expires: 1 })
+  }, [guesses])
+
+  useEffect(() => {
+    Cookies.set('lives', lives.toString(), {expires: 1})
+  }, [lives])
+
+  useEffect(() => {
+    Cookies.set('winStreak', winStreak.toString())
+  }, [winStreak])
 
   const checkItem = async (option: ItemOption | null) => {
     if (!option || isGameWon || isGameLost) return
@@ -109,11 +210,15 @@ const Home: React.FC = () => {
 
       const data = await res.json()
 
-      setGuesses([{ selected: option, result: data, guessId: uuidv4()}, ...guesses])
+      setGuesses(prev => {
+        const newGuesses = [{ selected: option, result: data, guessId: uuidv4() }, ...prev]
+        return newGuesses
+      })
       setSelected(null)
-      if (!data.isCorrect){
+      if (!data.isCorrect && !isInFFYL){
         setLives(prev => prev-1)
       }
+
     } catch (err) {
       console.error('Error checking item:', err)
     }
@@ -144,12 +249,15 @@ const Home: React.FC = () => {
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <img src={logoImage} alt="Logo" className="w-[512px] h-[128px] object-contain" />
-      {isGameWon ? (
+      {isGameWon && guesses.length > 0 ? (
         <WinScreen
             selected={guesses[0].selected.item}
           />
-        ) : isGameLost ? (
-          <LoseScreen dailyItem={guesses[0].result} />
+        ) : isGameLost && guesses.length > 0 ? (
+          <LoseScreen 
+            dailyImage={guesses[0].result.dailyImage}
+            dailyName={guesses[0].result.dailyName}
+          />
           ) : (
           <ItemSelection
             options={options}
