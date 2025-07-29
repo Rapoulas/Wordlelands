@@ -45,7 +45,7 @@ const decryptCookie = (cookie: string):string | null => {
       return null
     }
 
-    const decrypted = CryptoJS.AES.decrypt(cookie, COOKIE_SECRET).toString(CryptoJS.enc.Utf8)
+    const decrypted = CryptoJS.AES.decrypt(encrypted, COOKIE_SECRET).toString(CryptoJS.enc.Utf8)
     return decrypted
   }
   catch (err) {
@@ -81,6 +81,7 @@ const Home: React.FC = () => {
   const [isGameLost, setIsGameLost] = useState(false)
   const [isInFFYL, setIsInFFYL] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isGuessesLoaded, setIsGuessesLoaded] = useState(false)
 
   const [winStreak, setWinStreak] = useState(() => {
     const savedWinStreak = Cookies.get('winStreak')
@@ -102,6 +103,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const checkReset = () => {
+      
       const now = new Date()
       const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
       if (today > lastResetDate) {
@@ -240,6 +242,7 @@ const Home: React.FC = () => {
         setGuesses([])
       } finally {
         setIsLoading(false)
+        setIsGuessesLoaded(true)
       }
     }
     loadGuesses()
@@ -247,10 +250,12 @@ const Home: React.FC = () => {
 
   //Cookies
   useEffect(() => {
-    const guessIds = guesses.map(({ selected, guessId }) => ({ itemId: selected.value, guessId }))
+    if (!isGuessesLoaded) 
+      return
+    const guessIds = guesses.map(({ selected , guessId }) => ({ itemId: selected.value, guessId }))
     const guessesString = JSON.stringify(guessIds)
     Cookies.set('guesses', encryptCookie(guessesString), { expires: 1 })
-  }, [guesses])
+  }, [guesses, isGuessesLoaded])
 
   useEffect(() => {
     Cookies.set('lives', encryptCookie(lives.toString()), {expires: 1})
@@ -316,7 +321,7 @@ const Home: React.FC = () => {
     >
       <img src={logoImage} alt="Logo" className="w-[512px] h-[128px] object-contain" />
       {isLoading ? (
-          <div className="text-lg text-white text-outline">Loading...</div>
+          <div className="text-lg text-white text-outline animate-pulse">Loading...</div>
         ) : isGameWon && guesses.length > 0 ? (
         <WinScreen
             selected={guesses[0].selected.item}
