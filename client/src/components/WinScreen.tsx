@@ -2,7 +2,12 @@ import cardImage from '../assets/card.png'
 import type { Item } from '../types'
 import CountdownTimer from './CountdownTimer'
 
-const WinScreen: React.FC<{selected: Item}> = ({selected}) => {
+interface WinScreenProps {
+  selected: Item
+  winStreak: number
+}
+
+const WinScreen: React.FC<WinScreenProps> = ({selected, winStreak}) => {
   return (
     <div
       className="m-4 p-4 w-[524px] h-[396px] flex flex-col items-center justify-start text-white text-2xl bg-contain bg-no-repeat bg-center"

@@ -1,8 +1,8 @@
 import cardImage from '../assets/card.png'
 import hpImage from '../assets/HP.png'
 import Select from 'react-select'
-import type { ItemOption } from './Home'
 import type { JSX } from 'react'
+import type { ItemOption } from '../hooks/useGameState'
 
 interface WeaponGuessInputProps {
   options: ItemOption[]
